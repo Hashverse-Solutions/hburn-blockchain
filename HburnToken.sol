@@ -249,7 +249,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     /**
      * @dev Sets the values for {name} and {symbol}.
      *
-     * The default value of {decimals} is 18. To select a different value for
+     * The default value of {decimals} is 8. To select a different value for
      * {decimals} you should overload it.
      *
      * All two of these values are immutable: they can only be set once during
@@ -463,20 +463,15 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
             "ERC20: transfer amount exceeds balance"
         );
 
-        uint256 burnAmount = amount / 1000;
-        uint256 transferAmount = amount - burnAmount;
-
-        _burn(from, burnAmount);
-
         unchecked {
             _balances[from] = fromBalance - amount;
         }
 
-        _balances[to] += transferAmount;
+        _balances[to] += amount;
 
-        emit Transfer(from, to, transferAmount);
+        emit Transfer(from, to, amount);
 
-        _afterTokenTransfer(from, to, transferAmount);
+        _afterTokenTransfer(from, to, amount);
     }
 
     /** @dev Creates `amount` tokens and assigns them to `account`, increasing
