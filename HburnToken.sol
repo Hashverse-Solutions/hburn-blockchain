@@ -642,7 +642,13 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
  */
 contract HBurnToken is Context, ERC20, Ownable {
     uint256 public tokenSupply;
+
+    mapping(address => bool) public isBurner;
+
     event Mint(address, uint);
+    event Burn(address indexed from, uint256 amount);
+    event BurnerAdded(address indexed account);
+    event BurnerRemoved(address indexed account);
 
     constructor(
         string memory _name,
@@ -671,13 +677,36 @@ contract HBurnToken is Context, ERC20, Ownable {
         emit Mint(_account, _amount);
     }
 
+    // Modifier to check if the sender has the burn role
+    modifier onlyBurner() {
+        require(isBurner[msg.sender], "HBurnToken: Caller is not a burner");
+        _;
+    }
+
+     // Function to add an address as a burner
+    function addBurner(address account) external onlyOwner {
+        require(account != address(0),"HBurnToken: Address should not be 0");
+        require(!isBurner[account], "HBurnToken: Address is already a burner");
+        isBurner[account] = true;
+        emit BurnerAdded(account);
+    }
+
+
+    // Function to remove an address from burner role
+    function removeBurner(address account) external onlyOwner {
+        require(account != address(0),"HBurnToken: Address should not be 0");
+        require(isBurner[account], "HBurnToken: Address is not a burner");
+        isBurner[account] = false;
+        emit BurnerRemoved(account);
+    }
+
     /// @notice This is a public burnHBurnToken function, this function burns HBurn token
     /// @param _account This parameter indicates address which requires to burn tokens
     /// @param _amount This parameter indicates amount of tokens needed to be burned
     function burnHBurnToken(
         address _account,
         uint256 _amount
-    ) public {
+    ) public onlyBurner {
         require(_account != address(0),"HBurnToken: Burn address should not be 0");
         require(_amount > 0,"HBurnToken: Burn Amount should be greater than 0");
         require(balanceOf(_account) >= _amount, "HBurnToken: Burn Amount exceeds account balance");
