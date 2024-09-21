@@ -646,7 +646,6 @@ contract HBurnToken is Context, ERC20, Ownable {
     mapping(address => bool) public isBurner;
 
     event Mint(address, uint);
-    event Burn(address indexed from, uint256 amount);
     event BurnerAdded(address indexed account);
     event BurnerRemoved(address indexed account);
 
